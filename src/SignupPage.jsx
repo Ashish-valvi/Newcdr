@@ -32,8 +32,9 @@ const SignupPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = await axios.post("http://localhost:5000/signup", formData);
+        try { //fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
+        //http://localhost:5000/signup
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/signup`, formData);
             alert(response.data.message);
         } catch (error) {
             alert("Error signing up");

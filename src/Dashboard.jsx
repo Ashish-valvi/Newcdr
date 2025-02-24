@@ -1,117 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaSun, FaMoon } from "react-icons/fa"; // Import dark mode icons
-import "./SignupPage.css"; // ✅ Reuse the same CSS for consistency
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-const Dashboard = () => {
-  const [files, setFiles] = useState([]);
-  const [jsonFiles, setJsonFiles] = useState([]);
-  const navigate = useNavigate();
-  const storedTheme = localStorage.getItem("theme") || "light";
-  const [theme, setTheme] = useState(storedTheme);
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-  useEffect(() => {
-    document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+// CORS setup to allow requests from your domain
+app.use(
+  cors({
+    origin: "https://www.ashishvalvi.in",
+    methods: "GET,POST",
+    credentials: true,
+  })
+);
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/files");
-        const data = await response.json();
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-        const csvFiles = data.files.filter((file) => file.endsWith(".csv"));
-        const jsonFileSet = new Set(
-          data.files.filter((file) => file.endsWith(".json"))
-        );
+// Ensure the uploads directory exists
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
-        setFiles(csvFiles);
-        setJsonFiles(jsonFileSet);
-      } catch (error) {
-        console.error("🔥 Error fetching files:", error);
-      }
-    };
+// Multer configuration for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-    fetchFiles();
-  }, []);
+const upload = multer({ storage });
 
-  const handleGenerateData = async (filename) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/generate-data/${filename}`,
-        { method: "POST" }
-      );
-      const data = await response.json();
+// Route for file upload
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  res.json({ message: "File uploaded successfully", filename: req.file.filename });
+});
 
-      if (data.jsonFile) {
-        alert(`✅ Data generated successfully! JSON file: ${data.jsonFile}`);
-      } else {
-        alert(data.error || "An error occurred.");
-      }
-    } catch (error) {
-      console.error("🔥 Error generating data:", error);
+// Route to get list of uploaded files
+app.get("/files", (req, res) => {
+  fs.readdir("uploads", (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to retrieve files" });
     }
-  };
+    res.json({ files });
+  });
+});
 
-  return (
-    <div className="signup-container">
-      {/* Dark Mode Toggle Button */}
-      <button className="dark-mode-toggle" onClick={toggleTheme}>
-        {theme === "light" ? <FaMoon /> : <FaSun />}
-      </button>
+// Simulated data generation for a CSV file
+app.post("/generate-data/:filename", (req, res) => {
+  const { filename } = req.params;
+  const jsonFile = `${filename}.json`;
+  const jsonFilePath = path.join(__dirname, "uploads", jsonFile);
 
-      <div className="signup-box">
-        <h2>Dashboard</h2>
-        <h3>Uploaded CSV Files</h3>
-        <ul>
-          {files.length === 0 ? (
-            <p>No files uploaded yet.</p>
-          ) : (
-            files.map((file, index) => {
-              const jsonFilename = `${file}.json`;
-              const hasJson = jsonFiles.has(jsonFilename);
+  fs.writeFile(jsonFilePath, JSON.stringify({ message: "Generated data" }), (err) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to generate data" });
+    }
+    res.json({ message: "Data generated successfully", jsonFile });
+  });
+});
 
-              return (
-                <li key={index} style={{ listStyle: "none", marginBottom: "10px" }}>
-                  <a
-                    href={`http://localhost:5000/uploads/${file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="file-link"
-                  >
-                    {file}
-                  </a>
-                  <button
-                    onClick={() => handleGenerateData(file)}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Generate Data
-                  </button>
-                  {hasJson && (
-                    <button
-                      onClick={() => navigate(`/chart/${jsonFilename}`)}
-                      style={{
-                        marginLeft: "10px",
-                        backgroundColor: "green",
-                        color: "white",
-                      }}
-                    >
-                      View Report
-                    </button>
-                  )}
-                </li>
-              );
-            })
-          )}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-export default Dashboard;
+// Start server
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});

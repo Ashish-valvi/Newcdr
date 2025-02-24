@@ -20,9 +20,10 @@ const Upload = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile); // 🔹 Ensure field name matches backend
-
+    //fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
+    //fetch("http://localhost:5000/upload", 
     try {
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/upload`, {
         method: "POST",
         body: formData,
       });
