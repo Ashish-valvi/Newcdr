@@ -1,0 +1,149 @@
+/* Default Light Theme */
+:root {
+    --bg-color: #f4f4f4;
+    --box-bg: white;
+    --text-color: #333;
+    --input-bg: #fafafa;
+    --input-border: #ccc;
+    --button-bg: #007bff;
+    --button-hover: #0056b3;
+    --link-color: #007bff;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    --bg-color: #1e1e1e;
+    --box-bg: #2a2a2a;
+    --text-color: #f4f4f4;
+    --input-bg: #333;
+    --input-border: #555;
+    --button-bg: #ff9800;
+    --button-hover: #e68a00;
+    --link-color: #ff9800;
+}
+
+/* Apply Theme Variables */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Fullscreen Container */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Signup Box */
+.signup-box {
+    background: var(--box-bg);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 35%;
+    max-width: 450px;
+    min-width: 320px;
+    color: var(--text-color);
+}
+
+/* Input Fields */
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: border 0.3s;
+}
+
+input:focus {
+    border-color: var(--button-bg);
+    outline: none;
+}
+
+/* Button Styling */
+button {
+    background: var(--button-bg);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+    width: 100%;
+}
+
+button:hover {
+    background: var(--button-hover);
+}
+
+/* Login Link */
+p {
+    margin-top: 15px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+p a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+/* Dark Mode Toggle Button */
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px; /* Reduce icon size */
+    width: 40px; /* Set fixed width */
+    height: 40px; /* Set fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Make it circular */
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s;
+}
+
+.dark-mode-toggle:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .signup-box {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .signup-box {
+        width: 90%;
+        padding: 30px;
+    }
+}
